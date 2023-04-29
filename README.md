@@ -1,2 +1,3 @@
 # hydrolightToolbox
-This is an effort to convert hydrolight IDL subroutines to Python. 
+
+This is an effort to make Python modules to better interact with Hydrolight results.
