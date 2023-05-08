@@ -66,7 +66,7 @@ def read_h_dfile(path: str)->xr.Dataset:
                 case = s.strip()
                 structure_dict[case] = []
             # Store values in the current key
-            elif s[0:3] == "   ":
+            elif s[0:3] == "   " or s[0:3] == "  -":
                 arr = np.fromstring(s, sep=" ")
                 structure_dict[case] = np.append(structure_dict[case], arr)
             
@@ -91,7 +91,7 @@ def read_h_dfile(path: str)->xr.Dataset:
                 case = s.strip()
                 tmp_dict[case] = []
             # Store values in the current key
-            elif s[0:3] == "   ":
+            elif s[0:3] == "   " or s[0:3] == "  -":
                 arr = np.fromstring(s, sep=" ")
                 tmp_dict[case] = np.append(tmp_dict[case], arr)
         # Save the last wavelength dictionary
@@ -163,7 +163,9 @@ def read_h_dfile(path: str)->xr.Dataset:
 
         # Fill dictionary arrays for each variable
         i = 0
+        wl_check = []
         for _, val_wl in wl_dict.items():
+            wl_check.append(_)
             for key, val in val_wl.items():
                 name = key.split(" (")[0]
                 desc = key.split(" (")[1].replace(")","")
@@ -171,6 +173,11 @@ def read_h_dfile(path: str)->xr.Dataset:
                 wd_tmp[name]["data"][i,:] = val
                 wd_tmp[name]["dims"] = coordv[name]
             i+=1
+
+        wave_error_flag = False
+        if len(_tmp["wave"]["data"]) != len(wl_check):
+            _tmp["wave"]["data"] = np.array(wl_check)
+            wave_error_flag = True
 
         for k in range(len(wl)):
             # Reshape arrays according to the coordinates for the radiances
@@ -230,8 +237,8 @@ def read_h_dfile(path: str)->xr.Dataset:
 
         # Create the xarray and set the title
         s = xr.Dataset.from_dict(_tmp)
-        s.attrs["title"] = title_run
-
+        s.attrs["title"] = title_run 
+        s.attrs["wave_error"] = wave_error_flag
         # Compute radiances from matrices
         s = s.assign({"Lw_air":s.Rad_Ma}) 
         s["Lw_air"].attrs["description"] = "water leaving radiance in air"
