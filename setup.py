@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='hydrolightToolbox',
-    version='0.1.0',
+    version='0.3.0',
     description='A toolbox for working with hydrolight data',
     packages=find_packages(),
     install_requires=[
